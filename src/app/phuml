@@ -173,7 +173,7 @@ function cmdOutFile()
     global $argc, $argv;
     global $outfile;
 
-    $outfile = $argv[0];
+    $outfile = $argv[0] ?? 'out';
     updateArguments( 1 );
 }
 

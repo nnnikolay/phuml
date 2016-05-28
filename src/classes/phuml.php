@@ -6,6 +6,8 @@ class plPhuml
     
     private $files;
     private $processors;
+    /** @var  plStructureGenerator */
+    public $generator;
 
     public function __construct() 
     {
@@ -85,25 +87,26 @@ class plPhuml
     {
         echo "[|] Parsing class structure", "\n";
         $structure = $this->generator->createStructure( $this->files );
-        
-        $temporary = array( $structure, 'application/phuml-structure' );
-        foreach( $this->processors as $processor ) 
-        {            
-            preg_match( 
-                '@^pl([A-Z][a-z]*)Processor$@',
-                get_class( $processor ),
-                $matches
-            );
+        if (is_array($this->processors) && !empty($this->processors)) {
+          $temporary = array( $structure, 'application/phuml-structure' );
+          foreach( $this->processors as $processor ) {
+              preg_match( 
+                  '@^pl([A-Z][a-z]*)Processor$@',
+                 get_class( $processor ),
+                 $matches
+              );
 
-            echo "[|] Running '" . $matches[1] . "' processor", "\n";
-            $temporary = array( 
-                $processor->process( $temporary[0], $temporary[1] ),
-                $processor->getOutputType(),
-            );
-        }
+              echo "[|] Running '" . $matches[1] . "' processor", "\n";
+              $temporary = array( 
+                 $processor->process( $temporary[0], $temporary[1] ),
+                  $processor->getOutputType(),
+              );
+          }
 
         echo "[|] Writing generated data to disk", "\n";
         end( $this->processors )->writeToDisk( $temporary[0], $outfile );
+
+        } 
     }
 
 
